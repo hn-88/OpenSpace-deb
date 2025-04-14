@@ -32,7 +32,7 @@ jobs:
         chmod +x ./OpenSpace-${OPENSPACE_VERSION}-${APPIMAGE_VERSION}-x86_64.AppImage
         echo "Extracting ..."
         ./OpenSpace-${OPENSPACE_VERSION}-${APPIMAGE_VERSION}-x86_64.AppImage --appimage-extract
-        echo "Create DEB dir ...
+        echo "Create DEB dir ..."
         mkdir -p OpenSpace/DEBIAN 
         echo "Package: OpenSpace" > OpenSpace/DEBIAN/control 
         echo "Version: ${OPENSPACE_VERSION}-${APPIMAGE_VERSION}" >> OpenSpace/DEBIAN/control 
