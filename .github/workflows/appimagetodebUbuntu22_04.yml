@@ -26,8 +26,6 @@ jobs:
       # https://github.com/hn-88/OpenSpace-AppImage
       # https://www.reddit.com/r/linuxquestions/comments/nb0x1m/how_to_convert_appimages_to_deb_files/
       run: |
-        openSpaceHome="$HOME/source/OpenSpace"
-        cd "$openSpaceHome"
         echo "Downloading appimage ..."
         wget https://github.com/hn-88/OpenSpace-AppImage/releases/download/${OPENSPACE_VERSION}-${APPIMAGE_VERSION}/OpenSpace-${OPENSPACE_VERSION}-${APPIMAGE_VERSION}-x86_64.AppImage
         echo "Converting appimage to deb ..."
@@ -43,6 +41,8 @@ jobs:
         echo "Maintainer: hn-88 <hn-88@users.noreply.github.com>" >> OpenSpace/DEBIAN/control 
         echo "Description: OpenSpace is an open source, non-commercial, and freely available interactive data visualization software designed to visualize the entire known universe and portray our ongoing efforts to investigate the cosmos. This is an unofficial deb package." >> OpenSpace/DEBIAN/control 
         dpkg-deb --build OpenSpace
+        pwd
+        ls
         
 
     - name: Upload deb Artifact
@@ -52,6 +52,6 @@ jobs:
         name: OpenSpace-AppImage
         # optional, default is artifact
         # A file, directory or wildcard pattern that describes what to upload
-        path: $HOME/source/OpenSpace/OpenSpace*.deb
+        path: OpenSpace*.deb
       
     
