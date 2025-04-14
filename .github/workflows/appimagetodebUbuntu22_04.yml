@@ -29,6 +29,7 @@ jobs:
         echo "Downloading appimage ..."
         wget https://github.com/hn-88/OpenSpace-AppImage/releases/download/${OPENSPACE_VERSION}-${APPIMAGE_VERSION}/OpenSpace-${OPENSPACE_VERSION}-${APPIMAGE_VERSION}-x86_64.AppImage
         echo "Converting appimage to deb ..."
+        chmod +x ./OpenSpace-${OPENSPACE_VERSION}-${APPIMAGE_VERSION}-x86_64.AppImage
         echo "Extracting ..."
         ./OpenSpace-${OPENSPACE_VERSION}-${APPIMAGE_VERSION}-x86_64.AppImage --appimage-extract
         echo "Create DEB dir ...
