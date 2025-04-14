@@ -27,10 +27,7 @@ jobs:
       # https://www.reddit.com/r/linuxquestions/comments/nb0x1m/how_to_convert_appimages_to_deb_files/
       run: |
         openSpaceHome="$HOME/source/OpenSpace"
-        git clone https://github.com/zhiyuan1i/appimage2deb.git "$openSpaceHome"
         cd "$openSpaceHome"
-        echo "Installing appimage2deb.deb ..."
-        sudo dpkg -i appimage2deb.deb
         echo "Downloading appimage ..."
         wget https://github.com/hn-88/OpenSpace-AppImage/releases/download/${OPENSPACE_VERSION}-${APPIMAGE_VERSION}/OpenSpace-${OPENSPACE_VERSION}-${APPIMAGE_VERSION}-x86_64.AppImage
         echo "Converting appimage to deb ..."
@@ -43,7 +40,7 @@ jobs:
         echo "Section: base" >> OpenSpace/DEBIAN/control 
         echo "Priority: optional" >> OpenSpace/DEBIAN/control 
         echo "Architecture: all" >> OpenSpace/DEBIAN/control 
-        echo "Maintainer: Hari Nandakumar <hari@sssmediacentre.org>" >> OpenSpace/DEBIAN/control 
+        echo "Maintainer: hn-88 <hn-88@users.noreply.github.com>" >> OpenSpace/DEBIAN/control 
         echo "Description: OpenSpace is an open source, non-commercial, and freely available interactive data visualization software designed to visualize the entire known universe and portray our ongoing efforts to investigate the cosmos. This is an unofficial deb package." >> OpenSpace/DEBIAN/control 
         dpkg-deb --build OpenSpace
         
