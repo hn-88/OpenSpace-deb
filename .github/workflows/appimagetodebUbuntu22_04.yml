@@ -37,6 +37,13 @@ jobs:
       run: |       
         echo "Extracting ..."
         ./OpenSpace-*.AppImage --appimage-extract
+
+    - name: Install the dependencies used while building appimage
+      run: |
+        sudo apt-get update
+        sudo apt-get install glew-utils libpng-dev freeglut3-dev git libxrandr-dev libxinerama-dev xorg-dev libxcursor-dev libcurl4-openssl-dev libxi-dev libasound2-dev libgdal-dev libboost1.74-dev qt6-base-dev libmpv-dev libvulkan-dev
+        sudo apt install software-properties-common
+        sudo apt-get install libasound2 libasound2-data libasound2-plugins
         
     - name: create deb file with dpkg-deb
       # https://github.com/zhiyuan1i/appimage2deb
@@ -53,7 +60,54 @@ jobs:
         echo "Architecture: all" >> OpenSpace/DEBIAN/control 
         echo "Maintainer: hn-88 <hn-88@users.noreply.github.com>" >> OpenSpace/DEBIAN/control 
         echo "Description: OpenSpace is an open source, non-commercial, and freely available interactive data visualization software designed to visualize the entire known universe and portray our ongoing efforts to investigate the cosmos. This is an unofficial deb package." >> OpenSpace/DEBIAN/control 
-        dpkg-deb --build OpenSpace
+        # dpkg-deb --build OpenSpace
+
+    - name: update deb dependencies
+      run: |
+        # https://github.com/hn-88/OpenSpace-deb/issues/3
+
+    - name: Copy into package layout
+      run: |
+        mkdir -p pkg/usr
+        cp -r squashfs-root/* pkg/usr
+
+    - name: Detect and remove system-owned files, record dependencies
+      id: filter_syslibs
+      run: |
+        STAGED=pkg
+        DEPS=()
+        TMPFILE=$(mktemp)
+        while IFS= read -r file; do
+          owner=$(dpkg -S "$file" 2>/dev/null | head -n1 | cut -d: -f1)
+          if [ -n "$owner" ]; then
+            echo "System file detected: $file (owned by $owner)" >> "$TMPFILE"
+            DEPS+=("$owner")
+            rm -f "$STAGED/$file"
+          fi
+        done < <(find "$STAGED" -type f | sed "s|^$STAGED/||")
+        # Deduplicate
+        printf -v DLIST '%s,' "${DEPS[@]}"
+        echo "::set-output name=deps::${DLIST%,}"
+        echo "::set-output name=removed_list::$(wc -l < "$TMPFILE") files removed"
+
+    - name: Create DEBIAN/control file with dependencies
+      run: |
+        mkdir -p pkg/DEBIAN
+        cat > pkg/DEBIAN/control <<EOF
+        Package: openspace
+        Version: 0.21.0-1
+        Section: graphics
+        Priority: optional
+        Architecture: amd64
+        Maintainer: Your Name <your.email@example.com>
+        Depends: ${ { steps.filter_syslibs.outputs.deps } }
+        Description: OpenSpace astronomy visualization tool
+        EOF
+        echo "Packages removed due to system ownership: ${{ steps.filter_syslibs.outputs.removed_list }}"
+
+    - name: Build the .deb
+      run: |
+        dpkg-deb --build pkg OpenSpace-0.21.0-1.deb
         
 
     - name: Upload deb Artifact
@@ -64,5 +118,13 @@ jobs:
         # optional, default is artifact
         # A file, directory or wildcard pattern that describes what to upload
         path: OpenSpace*.deb
-      
-    
+
+    - name: Upload to github release draft
+      uses: xresloader/upload-to-github-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        file: "OpenSpace*.deb"
+        draft: true
+            
+          
