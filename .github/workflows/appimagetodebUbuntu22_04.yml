@@ -92,6 +92,19 @@ jobs:
         echo "deps=$UNIQUE_DEPS" >> "$GITHUB_OUTPUT"
         echo "removed_list=$(wc -l < "$TMPFILE")" >> "$GITHUB_OUTPUT"
 
+    - name: Save filtered dependency info to files
+      run: |
+        echo "${{ steps.filter_syslibs.outputs.deps }}" > filtered-deps.txt
+        echo "${{ steps.filter_syslibs.outputs.removed_list }}" > removed-files-count.txt
+
+    - name: Upload dependency info artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: openspace-deb-filtered-dependencies
+        path: |
+          filtered-deps.txt
+          removed-files-count.txt
+
     - name: Create DEBIAN/control file with dependencies
       run: |
         mkdir -p pkg/DEBIAN
@@ -101,7 +114,7 @@ jobs:
         echo "Priority: optional" >> pkg/DEBIAN/control
         echo "Architecture: amd64" >> pkg/DEBIAN/control
         echo "Maintainer: hn-88 <hn-88@users.noreply.github.com>" >> pkg/DEBIAN/control
-        echo "Depends: ${ { steps.filter_syslibs.outputs.deps } }" >> pkg/DEBIAN/control
+        echo "Depends: ${{ steps.filter_syslibs.outputs.deps }}" >> pkg/DEBIAN/control
         echo "Description: OpenSpace astronomy visualization tool" >> pkg/DEBIAN/control
         
         echo "Packages removed due to system ownership: ${{ steps.filter_syslibs.outputs.removed_list }}"
