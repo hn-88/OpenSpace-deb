@@ -86,10 +86,11 @@ jobs:
             rm -f "$STAGED/$file"
           fi
         done < <(find "$STAGED" -type f | sed "s|^$STAGED/||")
-        # Deduplicate
-        printf -v DLIST '%s,' "${DEPS[@]}"
-        echo "::set-output name=deps::${DLIST%,}"
-        echo "::set-output name=removed_list::$(wc -l < "$TMPFILE") files removed"
+        # Deduplicate and join as comma-separated list
+        UNIQUE_DEPS=$(printf '%s\n' "${DEPS[@]}" | sort -u | paste -sd, -)
+
+        echo "deps=$UNIQUE_DEPS" >> "$GITHUB_OUTPUT"
+        echo "removed_list=$(wc -l < "$TMPFILE")" >> "$GITHUB_OUTPUT"
 
     - name: Create DEBIAN/control file with dependencies
       run: |
