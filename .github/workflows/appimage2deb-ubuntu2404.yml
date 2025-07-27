@@ -142,6 +142,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         file: "OpenSpace*.deb"
-        draft: true
+        tag: "v0.21.0-1"  # Replace with the actual tag of the existing release
+        draft: false   # Set to false if uploading to a published release
+        overwrite: true  # Optional: overwrite if asset with same name exists
+        
             
           
