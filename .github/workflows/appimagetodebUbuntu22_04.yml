@@ -65,11 +65,13 @@ jobs:
     - name: update deb dependencies
       run: |
         # https://github.com/hn-88/OpenSpace-deb/issues/3
+        # https://github.com/hn-88/OpenSpace-deb/issues/6
+        sudo apt-get install fakeroot
 
     - name: Copy into package layout
       run: |
-        mkdir -p pkg/usr
-        cp -r OpenSpace/* pkg/usr
+        mkdir -p pkg
+        cp -r OpenSpace/* pkg
 
     - name: Detect and remove system-owned files, record dependencies
       id: filter_syslibs
@@ -121,7 +123,7 @@ jobs:
 
     - name: Build the .deb
       run: |
-        dpkg-deb --build pkg OpenSpace-0.21.0-1.deb
+        fakeroot dpkg-deb --build pkg OpenSpace-0.21.0-1.deb
         
 
     - name: Upload deb Artifact
